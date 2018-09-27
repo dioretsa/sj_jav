@@ -28,7 +28,7 @@
 		"id": "use_collection_series",
 		"label": "Use Collection - Series",
 		"type": "bool",
-		"default": "false"
+		"default": "true"
 	},
 	{
 		"id": "use_collection_label",
