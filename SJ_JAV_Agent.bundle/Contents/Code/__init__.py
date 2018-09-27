@@ -58,7 +58,7 @@ class SJ_JAV_Agent(Agent.Movies):
 		for item in data['performer']:
 			meta_role = metadata.roles.new()
 			meta_role.role = item['name']
-			meta_role.name = item['name_kor']
+			meta_role.name = item['name_kor'] if item['name_kor'] != '' else item['name']
 			meta_role.photo = item['img']
 		metadata.directors.clear()
 		if data['director_ko'] != '':
