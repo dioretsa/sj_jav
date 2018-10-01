@@ -12,6 +12,7 @@ class SJ_JAV_Agent(Agent.Movies):
 	name = "SJ JAV"
 	languages = [Locale.Language.Korean]
 	primary_provider = True
+	accepts_from = ['com.plexapp.agents.localmedia']
 
 	def search(self, results, media, lang, manual=False):
 		Log('SEARCH : %s %s' % (media.name, media.year)) 
