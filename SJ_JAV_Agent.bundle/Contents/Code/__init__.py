@@ -24,7 +24,9 @@ class SJ_JAV_Agent(Agent.Movies):
             Log(data)
             filename = data['MediaContainer']['Metadata'][0]['Media'][0]['Part'][0]['file']
             search_name = os.path.basename(filename).split('.')[0].replace('-', ' ')
-
+        match = Regex(r'(?P<cd>cd\d{1,2})$').search(search_name)
+        if match:
+            search_name = search_name.replace(match.group('cd'), '')
         url = '%s?mode=search&arg=%s' % (Prefs['server'], (urllib.quote(search_name.encode('utf8'))))
         data = JSON.ObjectFromURL(url, timeout=int(Prefs['timeout']))
         Log('DATA %s' % data)
