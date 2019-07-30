@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import urllib
 import os
+import re
 
 def Start():
     HTTP.CacheTime = 0
@@ -21,8 +22,8 @@ class SJ_JAV_Agent(Agent.Movies):
         if len(media.name.split(' ')) == 1:
             url = 'http://127.0.0.1:32400/library/metadata/%s' % media.id
             data = JSON.ObjectFromURL(url)
-            Log(data)
             filename = data['MediaContainer']['Metadata'][0]['Media'][0]['Part'][0]['file']
+            filename = re.sub('\s*\[.*?\]', '', filename).strip()
             search_name = os.path.basename(filename).split('.')[0].replace('-', ' ')
         match = Regex(r'(?P<cd>cd\d{1,2})$').search(search_name)
         if match:
