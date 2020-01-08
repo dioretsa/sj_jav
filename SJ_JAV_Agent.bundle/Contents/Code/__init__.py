@@ -14,7 +14,10 @@ class SJ_JAV_Agent(Agent.Movies):
     name = "SJ JAV"
     languages = [Locale.Language.Korean]
     primary_provider = True
-    accepts_from = ['com.plexapp.agents.localmedia'] 
+    accepts_from = ['com.plexapp.agents.localmedia', 'com.plexapp.agents.xbmcnfo']
+    contributes_to = [
+        'com.plexapp.agents.xbmcnfo',
+    ]
 
     def search(self, results, media, lang, manual=False):
         Log('SEARCH : %s %s %s' % (media.name, media.year, media.id)) 
@@ -68,7 +71,7 @@ class SJ_JAV_Agent(Agent.Movies):
             metadata.collections.add(change_html(data['series_ko']))
         if Prefs['use_collection_label'] and data['label_ko'] != '':
             metadata.collections.add(change_html(data['label_ko']))
-        try: metadata.posters[data['poster']] = Proxy.Preview(HTTP.Request( data['poster'] ))
+        try: metadata.posters[data['poster']] = Proxy.Media(HTTP.Request( data['poster'] ))
         except: pass
         metadata.roles.clear()
         for item in data['performer']:
