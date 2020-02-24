@@ -3,7 +3,7 @@ import urllib
 import os
 import re
 
-def Start():
+def Start(): 
     HTTP.CacheTime = 0
     HTTP.Headers['Accept'] = 'text/html, application/json'
 
@@ -11,7 +11,7 @@ def change_html(str):
     return str.replace('&nbsp;', ' ').replace('&lt;', '<').replace('&gt;', '>').replace('&amp;', '&').replace('&quot;', '"').replace('&#35;', '#').replace('&#39;', "‘")
 
 class SJ_JAV_Agent(Agent.Movies):
-    name = "SJ JAV"
+    name = "SJVA AV"
     languages = [Locale.Language.Korean]
     primary_provider = True
     accepts_from = ['com.plexapp.agents.localmedia', 'com.plexapp.agents.xbmcnfo']
@@ -22,16 +22,30 @@ class SJ_JAV_Agent(Agent.Movies):
     def search(self, results, media, lang, manual=False):
         Log('SEARCH : %s %s %s' % (media.name, media.year, media.id)) 
         search_name = media.name
-        if len(media.name.split(' ')) == 1:
-            url = 'http://127.0.0.1:32400/library/metadata/%s' % media.id
-            data = JSON.ObjectFromURL(url)
-            filename = data['MediaContainer']['Metadata'][0]['Media'][0]['Part'][0]['file']
-            filename = re.sub('\s*\[.*?\]', '', filename).strip()
-            search_name = os.path.basename(filename).split('.')[0].replace('-', ' ')
-        match = Regex(r'(?P<cd>cd\d{1,2})$').search(search_name)
+        #if len(media.name.split(' ')) == 1:
+        url = 'http://127.0.0.1:32400/library/metadata/%s' % media.id
+        data = JSON.ObjectFromURL(url)
+        filename = data['MediaContainer']['Metadata'][0]['Media'][0]['Part'][0]['file']
+        content_type = None
+        lists = [ ['censored', Prefs['censored_kerword']], ['uncensored', Prefs['uncensored_kerword']], ['west', Prefs['west_kerword']],  ]
+        for item in lists:
+            if item[1] is not None and item[1] != '':
+                for t in item[1].split('|'):
+                    if filename.find(t.strip()) != -1:
+                        find = True
+                        content_type = item[0]
+                        break
+                if content_type is not None:
+                    break
+        if content_type is None:
+            content_type = 'censored'
+                
+        search_name = os.path.splitext(os.path.basename(filename))[0].replace('-', ' ')
+        search_name = re.sub('\s*\[.*?\]', '', search_name).strip()
+        match = Regex(r'(?P<cd>cd\d{1,2})$').search(search_name) 
         if match:
             search_name = search_name.replace(match.group('cd'), '')
-        url = '%s?mode=search&arg=%s' % (Prefs['server'], (urllib.quote(search_name.encode('utf8'))))
+        url = '%s/av_agent/api/search?code=%s&content_type=%s&apikey=%s' % (Prefs['server'], urllib.quote(search_name.encode('utf8')), content_type, Prefs['apikey'])
         data = JSON.ObjectFromURL(url, timeout=int(Prefs['timeout']))
         Log('DATA %s' % data)
         for item in data:
@@ -44,7 +58,7 @@ class SJ_JAV_Agent(Agent.Movies):
 
     def update(self, metadata, media, lang):
         Log("UPDATE : %s" % metadata.id)
-        url = '%s?mode=update&arg=%s' % (Prefs['server'], metadata.id)
+        url = '%s/av_agent/api/update?code=%s&apikey=%s' % (Prefs['server'], metadata.id, Prefs['apikey'])
         data = JSON.ObjectFromURL(url, timeout=int(Prefs['timeout']))
         if data['code_show'] != '':
             metadata.title = '[%s]%s' % (data['code_show'], change_html(data['title_ko']))
@@ -95,4 +109,3 @@ class SJ_JAV_Agent(Agent.Movies):
             try: metadata.art[data['poster_full']] = Proxy.Preview(HTTP.Request(data['poster_full']), sort_order = idx_art)
             except: pass
         
-    
