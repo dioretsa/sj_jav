@@ -26,6 +26,7 @@ class SJ_JAV_Agent(Agent.Movies):
         url = 'http://127.0.0.1:32400/library/metadata/%s' % media.id
         data = JSON.ObjectFromURL(url)
         filename = data['MediaContainer']['Metadata'][0]['Media'][0]['Part'][0]['file']
+        """
         content_type = None
         lists = [ ['censored', Prefs['censored_kerword']], ['uncensored', Prefs['uncensored_kerword']], ['west', Prefs['west_kerword']],  ]
         for item in lists:
@@ -39,13 +40,14 @@ class SJ_JAV_Agent(Agent.Movies):
                     break
         if content_type is None:
             content_type = 'censored'
-                
+        """     
         search_name = os.path.splitext(os.path.basename(filename))[0].replace('-', ' ')
         search_name = re.sub('\s*\[.*?\]', '', search_name).strip()
         match = Regex(r'(?P<cd>cd\d{1,2})$').search(search_name) 
         if match:
             search_name = search_name.replace(match.group('cd'), '')
-        url = '%s/av_agent/api/search?code=%s&content_type=%s&apikey=%s' % (Prefs['server'], urllib.quote(search_name.encode('utf8')), content_type, Prefs['apikey'])
+        #url = '%s/av_agent/api/search?code=%s&content_type=%s&apikey=%s' % (Prefs['server'], urllib.quote(search_name.encode('utf8')), content_type, Prefs['apikey'])
+        url = '%s/av_agent/api/search?code=%s&apikey=%s' % (Prefs['server'], urllib.quote(search_name.encode('utf8')), Prefs['apikey'])
         data = JSON.ObjectFromURL(url, timeout=int(Prefs['timeout']))
         Log('DATA %s' % data)
         for item in data:
@@ -65,12 +67,13 @@ class SJ_JAV_Agent(Agent.Movies):
         else:
             metadata.title = '%s' % (change_html(data['title_ko']))
         metadata.original_title = change_html(data['title'])
+        metadata.title_sort = '%s' % data['code_show']
         try: metadata.year = int(data['date'][0:4])
         except: pass
         try: metadata.rating = float(data['rating']) * 2
         except: pass
         metadata.genres.clear()
-        for item in data['genre']:
+        for item in data['genre']: 
             metadata.genres.add(item)
         try: metadata.duration = int(data['running_time'])*60
         except: pass

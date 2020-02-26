@@ -12,24 +12,6 @@
 		"default": ""
 	},
 	{
-		"id": "censored_kerword",
-		"label": "Censored 키워드. 구분자 |",
-		"type": "text",
-		"default": ""
-	},
-	{
-		"id": "uncensored_kerword",
-		"label": "Uncensored 키워드. 구분자 |",
-		"type": "text",
-		"default": ""
-	},
-	{
-		"id": "west_kerword",
-		"label": "West 키워드. 구분자 |",
-		"type": "text",
-		"default": ""
-	},
-	{
 		"id": "max_num_arts",
 		"label": "Maximum Number of Arts",
 		"type": "enum",
