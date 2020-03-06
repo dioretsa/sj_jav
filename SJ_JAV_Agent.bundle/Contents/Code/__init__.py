@@ -21,27 +21,22 @@ class SJ_JAV_Agent(Agent.Movies):
 
     def search(self, results, media, lang, manual=False):
         Log('SEARCH : %s %s %s' % (media.name, media.year, media.id)) 
-        search_name = media.name
+        #search_name = media.name
         #if len(media.name.split(' ')) == 1:
         url = 'http://127.0.0.1:32400/library/metadata/%s' % media.id
         data = JSON.ObjectFromURL(url)
+        Log(data) 
         filename = data['MediaContainer']['Metadata'][0]['Media'][0]['Part'][0]['file']
-        """
-        content_type = None
-        lists = [ ['censored', Prefs['censored_kerword']], ['uncensored', Prefs['uncensored_kerword']], ['west', Prefs['west_kerword']],  ]
-        for item in lists:
-            if item[1] is not None and item[1] != '':
-                for t in item[1].split('|'):
-                    if filename.find(t.strip()) != -1:
-                        find = True
-                        content_type = item[0]
-                        break
-                if content_type is not None:
-                    break
-        if content_type is None:
-            content_type = 'censored'
-        """     
         search_name = os.path.splitext(os.path.basename(filename))[0].replace('-', ' ')
+        data = self.search2(results, media, lang, search_name)
+        if not data:
+            # western 만
+            match = Regex(r'\.\d{2}\.\d{2}.\d{2}').search(search_name)
+            if match:
+                search_name = os.path.splitext(os.path.basename(os.path.dirname(filename)))[0].replace('-', ' ')
+                self.search2(results, media, lang, search_name)
+
+    def search2(self, results, media, lang, search_name):
         search_name = re.sub('\s*\[.*?\]', '', search_name).strip()
         match = Regex(r'(?P<cd>cd\d{1,2})$').search(search_name) 
         if match:
@@ -57,6 +52,7 @@ class SJ_JAV_Agent(Agent.Movies):
             year = media.year
             Log.Debug('ID=%s, media.name=%s, title=%s, year=%s, score=%d' %(id, search_name, title, year, score))
             results.Append(MetadataSearchResult(id=id, name=title, year=year, score=score, lang=lang))
+        return data
 
     def update(self, metadata, media, lang):
         Log("UPDATE : %s" % metadata.id)
