@@ -2,6 +2,7 @@
 import urllib
 import os
 import re
+import unicodedata
 
 def Start(): 
     HTTP.CacheTime = 0
@@ -23,11 +24,14 @@ class SJ_JAV_Agent(Agent.Movies):
         Log('SEARCH : %s %s %s' % (media.name, media.year, media.id)) 
         #search_name = media.name
         #if len(media.name.split(' ')) == 1:
-        url = 'http://127.0.0.1:32400/library/metadata/%s' % media.id
-        data = JSON.ObjectFromURL(url)
-        Log(data) 
-        filename = data['MediaContainer']['Metadata'][0]['Media'][0]['Part'][0]['file']
-        search_name = os.path.splitext(os.path.basename(filename))[0].replace('-', ' ')
+        if manual:
+            search_name = unicodedata.normalize('NFKC', unicode(media.name)).strip()
+        else:
+            url = 'http://127.0.0.1:32400/library/metadata/%s' % media.id
+            data = JSON.ObjectFromURL(url)
+            Log(data) 
+            filename = data['MediaContainer']['Metadata'][0]['Media'][0]['Part'][0]['file']
+            search_name = os.path.splitext(os.path.basename(filename))[0].replace('-', ' ')
         data = self.search2(results, media, lang, search_name)
         if not data:
             # western 만
