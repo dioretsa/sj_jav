@@ -88,7 +88,7 @@ class SJ_JAV_Agent(Agent.Movies):
             metadata.collections.add(change_html(data['series_ko']))
         if Prefs['use_collection_label'] and data['label_ko'] != '':
             metadata.collections.add(change_html(data['label_ko']))
-        try: metadata.posters[data['poster']] = Proxy.Media(HTTP.Request( data['poster'] ))
+        try: metadata.posters[data['poster']] = Proxy.Preview(HTTP.Request( data['poster'] ))
         except: pass
         metadata.roles.clear()
         for item in data['performer']:
